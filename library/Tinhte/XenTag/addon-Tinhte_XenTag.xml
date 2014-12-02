@@ -1,0 +1,1107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="Tinhte_XenTag" title="[Tinhte] XenTag" version_string="1.8.4b" version_id="95" url="" install_callback_class="Tinhte_XenTag_Installer" install_callback_method="install" uninstall_callback_class="Tinhte_XenTag_Installer" uninstall_callback_method="uninstall">
+  <admin_navigation>
+    <navigation navigation_id="Tinhte_XenTag_Tag" parent_navigation_id="threadsPosts" display_order="9999" link="xentag-tags" admin_permission_id="Tinhte_XenTag" debug_only="0" hide_no_children="0"/>
+  </admin_navigation>
+  <admin_permissions>
+    <admin_permission admin_permission_id="Tinhte_XenTag" display_order="9999"/>
+  </admin_permissions>
+  <admin_style_properties/>
+  <admin_templates>
+    <template title="tinhte_xentag_delete_empty_tags"><![CDATA[<xen:title>{xen:phrase tinhte_xentag_tag_confirm_deletion}</xen:title>
+<xen:h1>{xen:phrase tinhte_xentag_tag_confirm_deletion}</xen:h1>
+
+<xen:require css="delete_confirmation.css" />
+
+<xen:form action="{xen:adminlink 'xentag-tags/delete-empty-tags'}" class="deleteConfirmForm formOverlay">
+
+	<p>{xen:phrase tinhte_xentag_please_confirm_delete_empty_tags}</p>
+
+	<xen:submitunit save="{xen:phrase delete}" />
+	
+	<input type="hidden" name="_xfConfirm" value="1" />
+</xen:form>]]></template>
+    <template title="tinhte_xentag_hook_admin_forum_edit_panes"><![CDATA[<li>
+	<xen:textboxunit
+		name="tinhte_xentag_tags_text"
+		value="{xen:helper Tinhte_Xentag_getImplodedTagsFromForum, $forum}"
+		label="{xen:phrase tinhte_xentag_tags}:"
+		explain="{xen:phrase tinhte_xentag_tags_instruction}"
+		inputclass="Elastic AutoComplete OptOut"
+		data-acUrl="{xen:link 'tags/find'}">
+	</xen:textboxunit>
+	<input type="hidden" name="tinhte_xentag_included" value="1" />
+
+	<xen:radiounit label="{xen:phrase option_Tinhte_XenTag_requiresTag}" name="tinhte_xentag_options[requiresTag]" value="{$forum.tinhte_xentag_options.requiresTag}" explain="{xen:phrase tinhte_xentag_forum_requires_tag_explain}">
+		<xen:option value="">{xen:phrase default} ({xen:if '{xen:helper Tinhte_XenTag_getOption, requiresTag} > 0', '{xen:phrase yes}', '{xen:phrase no}'})</xen:option>
+		<xen:option value="1">{xen:phrase yes}</xen:option>
+		<xen:option value="0">{xen:phrase no}</xen:option>
+	</xen:radiounit>
+
+</li>]]></template>
+    <template title="tinhte_xentag_hook_admin_forum_edit_tabs"><![CDATA[<li><a>{xen:phrase tinhte_xentag_tags}</a></li>]]></template>
+    <template title="tinhte_xentag_hook_admin_page_edit_basic_informati"><![CDATA[<!-- [Tinhte] XenTag / Mark --><!-- slot: after_description --><!-- [Tinhte] XenTag / Mark -->
+<xen:textboxunit
+	name="tinhte_xentag_tags_text"
+	value="{xen:helper Tinhte_Xentag_getImplodedTagsFromPage, $page}"
+	label="{xen:phrase tinhte_xentag_tags}:"
+	explain="{xen:phrase tinhte_xentag_tags_instruction}"
+	inputclass="Elastic AutoComplete"
+	data-acUrl="{xen:link 'tags/find'}">
+</xen:textboxunit>
+<input type="hidden" name="tinhte_xentag_included" value="1" />]]></template>
+    <template title="tinhte_xentag_tag_delete"><![CDATA[<xen:title>{xen:phrase tinhte_xentag_tag_confirm_deletion}: {$tag.tag_text}</xen:title>
+<xen:h1>{xen:phrase tinhte_xentag_tag_confirm_deletion}</xen:h1>
+
+<xen:navigation>
+	<xen:breadcrumb href="{xen:adminlink 'xentag-tags/edit', $tag}">{$tag.tag_text}</xen:breadcrumb>
+</xen:navigation>
+
+<xen:require css="delete_confirmation.css" />
+
+<xen:form action="{xen:adminlink 'xentag-tags/delete', $tag}" class="deleteConfirmForm formOverlay">
+
+	<p>{xen:phrase tinhte_xentag_tag_please_confirm}:</p>
+	<strong><a href="{xen:adminlink 'xentag-tags/edit', $tag}">{$tag.tag_text}</a></strong>
+
+	<xen:submitunit save="{xen:phrase tinhte_xentag_tag_delete}" />
+	
+	<input type="hidden" name="_xfConfirm" value="1" />
+</xen:form>]]></template>
+    <template title="tinhte_xentag_tag_edit"><![CDATA[<xen:title>{xen:phrase tinhte_xentag_tag_edit}: {$tag.tag_text}</xen:title>
+
+<xen:navigation>
+	<xen:breadcrumb href="{xen:adminlink xentag-tags}#{xen:helper listitemid, $tag.tag_id}">{$tag.tag_text}</xen:breadcrumb>
+</xen:navigation>
+
+<xen:form action="{xen:adminlink 'xentag-tags/edit', $tag}">
+
+	<xen:textboxunit label="{xen:phrase tinhte_xentag_tag_text}:" name="tag_text" value="{$tag.tag_text}">
+		<xen:explain>{xen:phrase tinhte_xentag_tag_text_explain}</xen:explain>
+	</xen:textboxunit>
+	
+	<xen:textboxunit label="{xen:phrase tinhte_xentag_tag_description}:" name="tag_description" value="{$tag.tag_description}"
+		rows="5" inputclass="Elastic">
+		<xen:explain>{xen:phrase tinhte_xentag_tag_description_explain}</xen:explain>
+	</xen:textboxunit>
+	
+	<xen:textboxunit label="{xen:phrase link}:" name="link" value="{$tagLink}">
+		<xen:explain>{xen:phrase tinhte_xentag_link_explain}</xen:explain>
+	</xen:textboxunit>
+	
+	<xen:checkboxunit label="" explain="{xen:phrase tinhte_xentag_is_staff_explain}">
+		<xen:option name="is_staff" value="1" selected="{$tag.is_staff}">{xen:phrase tinhte_xentag_is_staff}</xen:option>
+	</xen:checkboxunit>
+
+	<input type="hidden" name="tag_id" value="{$tag.tag_id}" />
+	<input type="hidden" name="_xfConfirm" value="1" />
+
+	<xen:submitunit save="{xen:phrase tinhte_xentag_tag_save}">
+		<input type="button" value="{xen:phrase tinhte_xentag_tag_delete}" accesskey="d" class="button OverlayTrigger"
+			data-href="{xen:adminlink xentag-tags/delete, $tag}" />
+	</xen:submitunit>
+</xen:form>]]></template>
+    <template title="tinhte_xentag_tag_list"><![CDATA[<xen:title>{xen:phrase tinhte_xentag_tags}</xen:title>
+
+<xen:topctrl>
+	<a href="{xen:adminlink 'xentag-tags/delete-empty-tags'}" class="button OverlayTrigger" accesskey="a">{xen:phrase tinhte_xentag_delete_empty_tags}</a>
+</xen:topctrl>
+
+<xen:require css="filter_list.css" />
+<xen:require js="js/xenforo/filter_list.js" />
+
+<xen:form action="{xen:adminlink 'xentag-tags'}" class="section">
+	<xen:if is="{$tags}">
+		<h2 class="subHeading">
+			<xen:include template="filter_list_controls" />
+			{xen:phrase tinhte_xentag_tags}
+		</h2>
+	
+		<ol class="FilterList Scrollable" data-ajaxFilter="true">
+			<xen:include template="tinhte_xentag_tag_list_item" />
+		</ol>
+	
+		<p class="sectionFooter">{xen:phrase showing_x_of_y_items, 'count=<span class="FilterListCount">{xen:count $tags}</span>', 'total={xen:number $total}'}</p>
+	<xen:else />
+		<div class="noResults">{xen:phrase tinhte_xentag_tag_no_results}</div>
+	</xen:if>
+</xen:form>
+
+{xen:adminpagenav $perPage, $total, $page, 'xentag-tags'}]]></template>
+    <template title="tinhte_xentag_tag_list_item"><![CDATA[<xen:foreach loop="$tags" value="$tag">
+	<xen:listitem
+		id="{$tag.tag_id}"
+		label="{$tag.tag_text}{xen:if '{$tag.is_staff}', '*'}"
+		snippet="{xen:if '{$tag.tag_description}', '{$tag.tag_description} | '}{xen:if '{$tag._tagLink}', '{$tag._tagLink} | '}{xen:phrase tinhte_xentag_content_count}: {xen:number $tag.content_count}"
+		href="{xen:adminlink 'xentag-tags/edit', $tag}"
+		delete="{xen:adminlink 'xentag-tags/delete', $tag}">
+		<xen:html>
+			<xen:if is="{$tag.content_count} > 0"><a href="{xen:link tags, $tag}" target="_blank" class="secondaryContent">{xen:phrase tinhte_xentag_tagged_contents}</a></xen:if>
+		</xen:html>
+	</xen:listitem>
+</xen:foreach>]]></template>
+    <template title="tinhte_xentag_tools_rebuild"><![CDATA[<xen:form action="{xen:adminlink 'tools/cache-rebuild'}">
+	<h2 class="subHeading">{xen:phrase tinhte_xentag_rebuild_tag_information}</h2>
+	<xen:spinboxunit name="options[batch]" value="100" step="50" min="1" label="{xen:phrase items_to_process_per_page}:" />
+
+	<xen:submitunit save="{xen:phrase rebuild_now}" />
+	<input type="hidden" name="cache" value="Tinhte_XenTag_Tag" />
+</xen:form>]]></template>
+    <template title="tinhte_xentag_widget_cloud_options"><![CDATA[<xen:spinboxunit label="{xen:phrase wf_limit}:" name="{$namePrefix}limit" value="{xen:if '!empty({$options.limit})', $options.limit, 50}">
+	<xen:explain>{xen:phrase wf_limit_explain, "items={xen:phrase tinhte_xentag_tags_lowercase}"}</xen:explain>
+</xen:spinboxunit>]]></template>
+    <template title="tinhte_xentag_widget_related_threads_options"><![CDATA[<xen:spinboxunit label="{xen:phrase wf_limit}:" name="{$namePrefix}limit" value="{xen:if '!empty({$options.limit})', $options.limit, 5}">
+	<xen:explain>{xen:phrase wf_limit_explain, "items={xen:phrase wf_threads}"}</xen:explain>
+</xen:spinboxunit>
+
+<xen:checkboxunit label="">
+	<xen:option name="{$namePrefix}as_guest" value="1" selected="{$options.as_guest}">{xen:phrase wf_use_guest_permissions}</xen:option>
+	<xen:option name="{$namePrefix}use_live_cache" value="1" selected="{$options.use_live_cache}">{xen:phrase wf_use_live_cache}</xen:option>
+</xen:checkboxunit>]]></template>
+    <template title="tinhte_xentag_widget_tagged_threads_options"><![CDATA[<xen:textboxunit label="{xen:phrase tinhte_xentag_tags}:" name="{$namePrefix}tags" value="{$options.tags}">
+	<xen:explain>{xen:phrase tinhte_xentag_tagged_threads_tags_explain}</xen:explain>
+</xen:textboxunit>
+
+<xen:spinboxunit label="{xen:phrase wf_limit}:" name="{$namePrefix}limit" value="{xen:if '!empty({$options.limit})', $options.limit, 5}">
+	<xen:explain>{xen:phrase wf_limit_explain, "items={xen:phrase wf_threads}"} {xen:phrase tinhte_xentag_tagged_threads_limit_explain, 'limit={xen:helper Tinhte_XenTag_getOption, latestTaggedContentsLimit}'}</xen:explain>
+</xen:spinboxunit>
+
+<xen:checkboxunit label="">
+	<xen:option name="{$namePrefix}as_guest" value="1" selected="{$options.as_guest}">{xen:phrase wf_use_guest_permissions}</xen:option>
+</xen:checkboxunit>]]></template>
+  </admin_templates>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="file_health_check" execute_order="10" callback_class="Tinhte_XenTag_Listener" callback_method="file_health_check" active="1" hint="" description=""/>
+    <listener event_id="init_dependencies" execute_order="10" callback_class="Tinhte_XenTag_Listener" callback_method="init_dependencies" active="1" hint="" description=""/>
+    <listener event_id="load_class_bb_code" execute_order="10" callback_class="Tinhte_XenTag_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="Tinhte_XenTag_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="load_class_datawriter" execute_order="10" callback_class="Tinhte_XenTag_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="load_class_importer" execute_order="10" callback_class="Tinhte_XenTag_Listener" callback_method="load_class_importer" active="1" hint="" description=""/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="Tinhte_XenTag_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="load_class_search_data" execute_order="10" callback_class="Tinhte_XenTag_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="load_class_view" execute_order="10" callback_class="Tinhte_XenTag_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="template_create" execute_order="10" callback_class="Tinhte_XenTag_Listener" callback_method="template_create" active="1" hint="" description=""/>
+    <listener event_id="template_hook" execute_order="10" callback_class="Tinhte_XenTag_Listener" callback_method="template_hook" active="1" hint="" description=""/>
+    <listener event_id="template_post_render" execute_order="10" callback_class="Tinhte_XenTag_Listener" callback_method="template_post_render" active="1" hint="" description=""/>
+    <listener event_id="widget_framework_ready" execute_order="10" callback_class="Tinhte_XenTag_Listener" callback_method="widget_framework_ready" active="1" hint="" description=""/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="Tinhte_XenTag" display_order="9999" debug_only="0"/>
+    <option option_id="Tinhte_XenTag_autoTagGlobalMax" edit_format="spinbox" data_type="unsigned_integer" can_backup="1">
+      <default_value>1000</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Tinhte_XenTag" display_order="1020"/>
+    </option>
+    <option option_id="Tinhte_XenTag_autoTagMode" edit_format="select" data_type="string" can_backup="1">
+      <default_value>thread_tags_first_post_only</default_value>
+      <edit_format_params>thread_tags = {xen:phrase tinhte_xentag_auto_tag_mode_thread_tags}
+thread_tags_first_post_only = {xen:phrase tinhte_xentag_auto_tag_mode_thread_tags_first_post_only}
+all_tags = {xen:phrase tinhte_xentag_auto_tag_mode_all_tags}
+disabled = {xen:phrase tinhte_xentag_auto_tag_mode_disabled}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Tinhte_XenTag" display_order="1000"/>
+    </option>
+    <option option_id="Tinhte_XenTag_autoTagOnceOnly" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Tinhte_XenTag" display_order="1010"/>
+    </option>
+    <option option_id="Tinhte_XenTag_autoTagResource" edit_format="select" data_type="string" can_backup="1">
+      <default_value>resource_tags</default_value>
+      <edit_format_params>resource_tags = {xen:phrase tinhte_xentag_auto_tag_resource_tags}
+all_tags = {xen:phrase tinhte_xentag_auto_tag_mode_all_tags}
+disabled = {xen:phrase tinhte_xentag_auto_tag_mode_disabled}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Tinhte_XenTag" display_order="1000"/>
+    </option>
+    <option option_id="Tinhte_XenTag_displayPosition" edit_format="radio" data_type="string" can_backup="1">
+      <default_value>thread_qr_below</default_value>
+      <edit_format_params>post_message_below = {xen:phrase tinhte_xentag_display_position_post_message_below}
+post_below = {xen:phrase tinhte_xentag_display_position_post_below}
+thread_qr_below = {xen:phrase tinhte_xentag_display_position_thread_qr_below}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Tinhte_XenTag" display_order="100"/>
+    </option>
+    <option option_id="Tinhte_XenTag_displayPositionResource" edit_format="radio" data_type="string" can_backup="1">
+      <default_value>sidebar_info</default_value>
+      <edit_format_params>sidebar_info = {xen:phrase tinhte_xentag_display_position_resource_sidebar_info}
+bottom = {xen:phrase tinhte_xentag_display_position_resource_bottom}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Tinhte_XenTag" display_order="100"/>
+    </option>
+    <option option_id="Tinhte_XenTag_linkFormat" edit_format="radio" data_type="string" can_backup="1">
+      <default_value>beautiful</default_value>
+      <edit_format_params>beautiful = {xen:phrase tinhte_xentag_link_format_beautiful}
+ugly = {xen:phrase tinhte_xentag_link_format_ugly}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Tinhte_XenTag" display_order="1"/>
+    </option>
+    <option option_id="Tinhte_XenTag_linkTargetBlank" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Tinhte_XenTag" display_order="110"/>
+    </option>
+    <option option_id="Tinhte_XenTag_prioritizeForums" edit_format="spinbox" data_type="unsigned_integer" can_backup="1">
+      <default_value>100</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Tinhte_XenTag" display_order="2010"/>
+    </option>
+    <option option_id="Tinhte_XenTag_prioritizePages" edit_format="spinbox" data_type="unsigned_integer" can_backup="1">
+      <default_value>50</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Tinhte_XenTag" display_order="2020"/>
+    </option>
+    <option option_id="Tinhte_XenTag_prioritizeResources" edit_format="spinbox" data_type="unsigned_integer" can_backup="1">
+      <default_value>200</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Tinhte_XenTag" display_order="2030"/>
+    </option>
+    <option option_id="Tinhte_XenTag_requiresTag" edit_format="radio" data_type="unsigned_integer" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Tinhte_XenTag" display_order="50"/>
+    </option>
+    <option option_id="Tinhte_XenTag_resourceRequiresTag" edit_format="radio" data_type="unsigned_integer" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>1 = {xen:phrase yes}
+0 = {xen:phrase no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Tinhte_XenTag" display_order="50"/>
+    </option>
+    <option option_id="Tinhte_XenTag_searchIndexType" edit_format="radio" data_type="string" can_backup="1">
+      <default_value>md5</default_value>
+      <edit_format_params>plaintext = {xen:phrase tinhte_xentag_search_index_plaintext}
+md5 = {xen:phrase tinhte_xentag_search_index_md5}
+md5dashes = {xen:phrase tinhte_xentag_search_index_md5_dashes}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Tinhte_XenTag" display_order="10"/>
+    </option>
+    <option option_id="Tinhte_XenTag_tagMaxLength" edit_format="spinbox" data_type="positive_integer" can_backup="1" validation_class="Tinhte_XenTag_Option" validation_method="verifyTagMaxLength">
+      <default_value>50</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="Tinhte_XenTag" display_order="30"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups/>
+    <permissions>
+      <permission permission_group_id="forum" permission_id="Tinhte_XenTag_maximumTags" permission_type="integer" default_value_int="0" interface_group_id="forumPermissions" display_order="9999"/>
+      <permission permission_group_id="forum" permission_id="Tinhte_XenTag_tag" permission_type="flag" depend_permission_id="postThread" default_value="unset" interface_group_id="forumPermissions" display_order="9999"/>
+      <permission permission_group_id="forum" permission_id="Tinhte_XenTag_tagAll" permission_type="flag" depend_permission_id="editAnyPost" default_value="unset" interface_group_id="forumModeratorPermissions" display_order="9999"/>
+      <permission permission_group_id="general" permission_id="Tinhte_XenTag_createNew" permission_type="flag" default_value="unset" interface_group_id="generalPermissions" display_order="9999"/>
+      <permission permission_group_id="general" permission_id="Tinhte_XenTag_edit" permission_type="flag" default_value="unset" interface_group_id="generalPermissions" display_order="9999"/>
+      <permission permission_group_id="general" permission_id="Tinhte_XenTag_isStaff" permission_type="flag" default_value="unset" interface_group_id="generalPermissions" display_order="9999"/>
+      <permission permission_group_id="resource" permission_id="TXT_resourceMaximumTags" permission_type="integer" default_value_int="0" interface_group_id="resourcePermissions" display_order="9999"/>
+      <permission permission_group_id="resource" permission_id="Tinhte_XenTag_resourceAll" permission_type="flag" default_value="unset" interface_group_id="resourceModeratorPermissions" display_order="9999"/>
+      <permission permission_group_id="resource" permission_id="Tinhte_XenTag_resourceTag" permission_type="flag" default_value="unset" interface_group_id="resourcePermissions" display_order="9999"/>
+    </permissions>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="admin_navigation_Tinhte_XenTag_Tag" version_id="1" version_string="0.9"><![CDATA[Tags]]></phrase>
+    <phrase title="admin_permission_Tinhte_XenTag" version_id="1" version_string="0.9"><![CDATA[[XenTag] Manage tags]]></phrase>
+    <phrase title="option_group_Tinhte_XenTag" version_id="5" version_string="0.9.4"><![CDATA[[Tinhte] XenTag]]></phrase>
+    <phrase title="option_group_Tinhte_XenTag_description" version_id="74" version_string="1.5.3b"><![CDATA[Options for contents tagging.]]></phrase>
+    <phrase title="option_Tinhte_XenTag_autoTagGlobalMax" version_id="15" version_string="0.9.8.5"><![CDATA[Auto Tag Global Limitation]]></phrase>
+    <phrase title="option_Tinhte_XenTag_autoTagGlobalMax_explain" version_id="15" version_string="0.9.8.5"><![CDATA[Enter the maximum number of tags should be process when the mode is set to use all tags. To remove limitation, enter 0 (zero) in this option.]]></phrase>
+    <phrase title="option_Tinhte_XenTag_autoTagMode" version_id="77" version_string="1.6"><![CDATA[Thread Auto Tag]]></phrase>
+    <phrase title="option_Tinhte_XenTag_autoTagMode_explain" version_id="77" version_string="1.6"><![CDATA[Select the mode for auto tagging feature in thread.]]></phrase>
+    <phrase title="option_Tinhte_XenTag_autoTagOnceOnly" version_id="15" version_string="0.9.8.5"><![CDATA[Auto Tag Once Only]]></phrase>
+    <phrase title="option_Tinhte_XenTag_autoTagOnceOnly_explain" version_id="77" version_string="1.6"><![CDATA[Enable this option to auto tag each tag once in a piece of content.]]></phrase>
+    <phrase title="option_Tinhte_XenTag_autoTagResource" version_id="77" version_string="1.6"><![CDATA[Resource Auto Tag]]></phrase>
+    <phrase title="option_Tinhte_XenTag_autoTagResource_explain" version_id="77" version_string="1.6"><![CDATA[Select the mode for auto tagging feature in resource.]]></phrase>
+    <phrase title="option_Tinhte_XenTag_displayPosition" version_id="77" version_string="1.6"><![CDATA[Thread Display Position]]></phrase>
+    <phrase title="option_Tinhte_XenTag_displayPositionResource" version_id="77" version_string="1.6"><![CDATA[Resource Display Position]]></phrase>
+    <phrase title="option_Tinhte_XenTag_displayPositionResource_explain" version_id="77" version_string="1.6"><![CDATA[Display position in resource view. The tag will be displayed in the specified place only.]]></phrase>
+    <phrase title="option_Tinhte_XenTag_displayPosition_explain" version_id="77" version_string="1.6"><![CDATA[Display position in thread view. The tag will be displayed in the specified place only.]]></phrase>
+    <phrase title="option_Tinhte_XenTag_linkFormat" version_id="65" version_string="1.3.3"><![CDATA[Tag Link Format]]></phrase>
+    <phrase title="option_Tinhte_XenTag_linkFormat_explain" version_id="70" version_string="1.5"><![CDATA[If your tags use special characters and the links don't work properly, switch to the second format.]]></phrase>
+    <phrase title="option_Tinhte_XenTag_linkTargetBlank" version_id="77" version_string="1.6"><![CDATA[Open Tag Link in New Window]]></phrase>
+    <phrase title="option_Tinhte_XenTag_linkTargetBlank_explain" version_id="77" version_string="1.6"><![CDATA[Enable this option to open the tag page in a new window (or browser tab, if available).]]></phrase>
+    <phrase title="option_Tinhte_XenTag_prioritizeForums" version_id="70" version_string="1.5"><![CDATA[Prioritize Forums]]></phrase>
+    <phrase title="option_Tinhte_XenTag_prioritizeForums_explain" version_id="70" version_string="1.5"><![CDATA[Enter the display order to prioritize forums in tagged content listing. The higher the value, the higher forums will showup in the list. Enter 0 to disable this feature.]]></phrase>
+    <phrase title="option_Tinhte_XenTag_prioritizePages" version_id="70" version_string="1.5"><![CDATA[Prioritize Pages]]></phrase>
+    <phrase title="option_Tinhte_XenTag_prioritizePages_explain" version_id="70" version_string="1.5"><![CDATA[Enter the display order to prioritize pages in tagged content listing. The higher the value, the higher pages will showup in the list. Enter 0 to disable this feature.]]></phrase>
+    <phrase title="option_Tinhte_XenTag_prioritizeResources" version_id="75" version_string="1.6-dev"><![CDATA[Prioritize Resources]]></phrase>
+    <phrase title="option_Tinhte_XenTag_prioritizeResources_explain" version_id="75" version_string="1.6-dev"><![CDATA[Enter the display order to prioritize resources in tagged content listing. The higher the value, the higher forums will showup in the list. Enter 0 to disable this feature.]]></phrase>
+    <phrase title="option_Tinhte_XenTag_requiresTag" version_id="93" version_string="1.8.3"><![CDATA[Requires Tag (thread)]]></phrase>
+    <phrase title="option_Tinhte_XenTag_requiresTag_explain" version_id="34" version_string="1.1"><![CDATA[Select "Yes" to require at least one tag in a new thread. This option can be overridden in individual forum by updating its option to override global setting.]]></phrase>
+    <phrase title="option_Tinhte_XenTag_resourceRequiresTag" version_id="93" version_string="1.8.3"><![CDATA[Requires Tag (resource)]]></phrase>
+    <phrase title="option_Tinhte_XenTag_resourceRequiresTag_explain" version_id="93" version_string="1.8.3"><![CDATA[Select "Yes" to require at least one tag in a new resource.]]></phrase>
+    <phrase title="option_Tinhte_XenTag_searchIndexType" version_id="76" version_string="1.6-dev"><![CDATA[Search Index Mode]]></phrase>
+    <phrase title="option_Tinhte_XenTag_searchIndexType_explain" version_id="76" version_string="1.6-dev"><![CDATA[Different search engine may cause problem with tag, you can experiment different modes here to choose which works best for your site. You MUST rebuild the search index after changing this option.]]></phrase>
+    <phrase title="option_Tinhte_XenTag_tagMaxLength" version_id="6" version_string="0.9.5"><![CDATA[Maximum Tag Length]]></phrase>
+    <phrase title="option_Tinhte_XenTag_tagMaxLength_explain" version_id="6" version_string="0.9.5"><![CDATA[You can set the maximum tag length here. There is a hard limitation of 100, you can't exceed it (the database can only hold a maximum of 100 characters).]]></phrase>
+    <phrase title="permission_forum_Tinhte_XenTag_maximumTags" version_id="93" version_string="1.8.3"><![CDATA[[XenTag] Max tags per thread]]></phrase>
+    <phrase title="permission_forum_Tinhte_XenTag_tag" version_id="3" version_string="0.9.2"><![CDATA[[XenTag] Tag thread by self]]></phrase>
+    <phrase title="permission_forum_Tinhte_XenTag_tagAll" version_id="3" version_string="0.9.2"><![CDATA[[XenTag] Tag thread by anyone]]></phrase>
+    <phrase title="permission_general_Tinhte_XenTag_createNew" version_id="5" version_string="0.9.4"><![CDATA[[XenTag] Create new tag]]></phrase>
+    <phrase title="permission_general_Tinhte_XenTag_edit" version_id="68" version_string="1.3.4.1"><![CDATA[[XenTag] Edit tag]]></phrase>
+    <phrase title="permission_general_Tinhte_XenTag_isStaff" version_id="89" version_string="1.7.2"><![CDATA[[XenTag] See staff-only tags]]></phrase>
+    <phrase title="permission_resource_Tinhte_XenTag_resourceAll" version_id="75" version_string="1.6-dev"><![CDATA[[XenTag] Tag resource by anyone]]></phrase>
+    <phrase title="permission_resource_Tinhte_XenTag_resourceTag" version_id="75" version_string="1.6-dev"><![CDATA[[XenTag] Tag resource by self]]></phrase>
+    <phrase title="permission_resource_TXT_resourceMaximumTags" version_id="93" version_string="1.8.3"><![CDATA[[XenTag] Max tags per resource]]></phrase>
+    <phrase title="style_property_group_Tinhte_XenTag_master" version_id="74" version_string="1.5.3b"><![CDATA[[Tinhte] XenTag]]></phrase>
+    <phrase title="style_property_group_Tinhte_XenTag_master_desc" version_id="74" version_string="1.5.3b"><![CDATA[Styling properties for contents tagging.]]></phrase>
+    <phrase title="style_property_tinhte_xentag_showIconInTagLink_description_master" version_id="74" version_string="1.5.3b"><![CDATA[Enable this option to show a small icon for the tag link. The icon must be placed in the image path defined by the style. To be exact: @imagePath/Tinhte/XenTag/tag.png.]]></phrase>
+    <phrase title="style_property_tinhte_xentag_showIconInTagLink_master" version_id="74" version_string="1.5.3b"><![CDATA[Show Icon in Tag Link]]></phrase>
+    <phrase title="tinhte_xentag_all_contents_tagged_x" version_id="33" version_string="1.0.6"><![CDATA[These are all contents from {board_title} tagged {tag_text}.]]></phrase>
+    <phrase title="tinhte_xentag_auto_tag_mode_all_tags" version_id="15" version_string="0.9.8.5"><![CDATA[Auto tag all tags (with limitation)]]></phrase>
+    <phrase title="tinhte_xentag_auto_tag_mode_disabled" version_id="15" version_string="0.9.8.5"><![CDATA[Disabled]]></phrase>
+    <phrase title="tinhte_xentag_auto_tag_mode_thread_tags" version_id="15" version_string="0.9.8.5"><![CDATA[Auto tag thread tags only]]></phrase>
+    <phrase title="tinhte_xentag_auto_tag_mode_thread_tags_first_post_only" version_id="15" version_string="0.9.8.5"><![CDATA[Auto tag the first post with thread tags only]]></phrase>
+    <phrase title="tinhte_xentag_auto_tag_resource_tags" version_id="77" version_string="1.6"><![CDATA[Auto tag resource tags only]]></phrase>
+    <phrase title="tinhte_xentag_content_count" version_id="3" version_string="0.9.2"><![CDATA[Content Count]]></phrase>
+    <phrase title="tinhte_xentag_created_date" version_id="1" version_string="0.9"><![CDATA[Created Date]]></phrase>
+    <phrase title="tinhte_xentag_created_user_id" version_id="1" version_string="0.9"><![CDATA[Created User Id]]></phrase>
+    <phrase title="tinhte_xentag_delete_empty_tags" version_id="33" version_string="1.0.6"><![CDATA[Delete Empty Tags]]></phrase>
+    <phrase title="tinhte_xentag_display_position_post_below" version_id="89" version_string="1.7.2"><![CDATA[Below first post]]></phrase>
+    <phrase title="tinhte_xentag_display_position_post_message_below" version_id="89" version_string="1.7.2"><![CDATA[Below first post message]]></phrase>
+    <phrase title="tinhte_xentag_display_position_resource_bottom" version_id="77" version_string="1.6"><![CDATA[Bottom of resource page]]></phrase>
+    <phrase title="tinhte_xentag_display_position_resource_sidebar_info" version_id="77" version_string="1.6"><![CDATA[Sidebar: Information block]]></phrase>
+    <phrase title="tinhte_xentag_display_position_thread_qr_below" version_id="5" version_string="0.9.4"><![CDATA[Bottom of thread page]]></phrase>
+    <phrase title="tinhte_xentag_edit_tags" version_id="1" version_string="0.9"><![CDATA[Edit Tags]]></phrase>
+    <phrase title="tinhte_xentag_forum" version_id="69" version_string="1.4"><![CDATA[Forum (Tags)]]></phrase>
+    <phrase title="tinhte_xentag_forum_maximum_tags_explain" version_id="34" version_string="1.1"><![CDATA[You can override global setting for this forum here. Set the maximum tags can be tagged in a thread. Set to 0 (zero) to have no limit.]]></phrase>
+    <phrase title="tinhte_xentag_forum_requires_tag_explain" version_id="34" version_string="1.1"><![CDATA[You can override global setting for this forum here. Select Yes to requires at least one tag in a new thread.]]></phrase>
+    <phrase title="tinhte_xentag_is_staff" version_id="89" version_string="1.7.2"><![CDATA[Is staff-only tag]]></phrase>
+    <phrase title="tinhte_xentag_is_staff_explain" version_id="89" version_string="1.7.2"><![CDATA[Staff-only tags will only be visible to users or user groups with the permission "[XenTag] See staff-only tags".]]></phrase>
+    <phrase title="tinhte_xentag_link_explain" version_id="89" version_string="1.7.2"><![CDATA[If entered, user will be redirected to the specified link when he/she views tagged contents listing.]]></phrase>
+    <phrase title="tinhte_xentag_link_format_beautiful" version_id="65" version_string="1.3.3"><![CDATA[http://domain.com/xenforo/tags/something/page-10]]></phrase>
+    <phrase title="tinhte_xentag_link_format_ugly" version_id="65" version_string="1.3.3"><![CDATA[http://domain.com/xenforo/tags?t=something&page=10]]></phrase>
+    <phrase title="tinhte_xentag_matched_tags" version_id="86" version_string="1.6.5"><![CDATA[Matched Tags]]></phrase>
+    <phrase title="tinhte_xentag_no_contents_has_been_found" version_id="50" version_string="1.2.11"><![CDATA[No content has been found.]]></phrase>
+    <phrase title="tinhte_xentag_no_tags" version_id="5" version_string="0.9.4"><![CDATA[No tags]]></phrase>
+    <phrase title="tinhte_xentag_page" version_id="60" version_string="1.2.21"><![CDATA[Page (Tags)]]></phrase>
+    <phrase title="tinhte_xentag_page_x" version_id="69" version_string="1.4"><![CDATA[Page {page}.]]></phrase>
+    <phrase title="tinhte_xentag_please_confirm_delete_empty_tags" version_id="33" version_string="1.0.6"><![CDATA[Please confirm that you want to delete ALL empty tags (without any contents tagged).]]></phrase>
+    <phrase title="tinhte_xentag_rebuild_tag_information" version_id="88" version_string="1.7.1"><![CDATA[Rebuild Tag Information]]></phrase>
+    <phrase title="tinhte_xentag_related_threads" version_id="89" version_string="1.7.2"><![CDATA[Related Threads]]></phrase>
+    <phrase title="tinhte_xentag_resource" version_id="75" version_string="1.6-dev"><![CDATA[Resource (Tags)]]></phrase>
+    <phrase title="tinhte_xentag_resource_requires_tag" version_id="93" version_string="1.8.3"><![CDATA[The resource must be tagged with at least one tag.]]></phrase>
+    <phrase title="tinhte_xentag_search_by_tag" version_id="1" version_string="0.9"><![CDATA[Search by tag]]></phrase>
+    <phrase title="tinhte_xentag_search_index_md5" version_id="76" version_string="1.6-dev"><![CDATA[Hashed]]></phrase>
+    <phrase title="tinhte_xentag_search_index_md5_dashes" version_id="76" version_string="1.6-dev"><![CDATA[Hashed with dashes (recommended)]]></phrase>
+    <phrase title="tinhte_xentag_search_index_plaintext" version_id="76" version_string="1.6-dev"><![CDATA[Plaintext]]></phrase>
+    <phrase title="tinhte_xentag_search_threads_tagged_with_x_only" version_id="1" version_string="0.9"><![CDATA[Search threads tagged with {tag_text} only]]></phrase>
+    <phrase title="tinhte_xentag_sort" version_id="1" version_string="0.9"><![CDATA[Sort]]></phrase>
+    <phrase title="tinhte_xentag_tag" version_id="1" version_string="0.9"><![CDATA[Tag]]></phrase>
+    <phrase title="tinhte_xentag_tagged_contents" version_id="3" version_string="0.9.2"><![CDATA[Tagged Contents]]></phrase>
+    <phrase title="tinhte_xentag_tagged_threads" version_id="89" version_string="1.7.2"><![CDATA[Tagged Threads]]></phrase>
+    <phrase title="tinhte_xentag_tagged_threads_limit_explain" version_id="21" version_string="0.10"><![CDATA[Please note that there is a hard limit for each tag: only {limit} latest tagged contents is saved. In order to maintain good performance, this widget will only use that information (instead of querying the xf_tinhte_xentag_tagged_content table directly).]]></phrase>
+    <phrase title="tinhte_xentag_tagged_threads_tags_explain" version_id="21" version_string="0.10"><![CDATA[The list of tags separated by comma. Only threads that has been tagged with specified tags will show up.]]></phrase>
+    <phrase title="tinhte_xentag_tags" version_id="1" version_string="0.9"><![CDATA[Tags]]></phrase>
+    <phrase title="tinhte_xentag_tags_instruction" version_id="35" version_string="1.1.1"><![CDATA[Enter list of tags, separated by comma.]]></phrase>
+    <phrase title="tinhte_xentag_tags_lowercase" version_id="6" version_string="0.9.5"><![CDATA[tags]]></phrase>
+    <phrase title="tinhte_xentag_tag_add" version_id="1" version_string="0.9"><![CDATA[Add New Tag]]></phrase>
+    <phrase title="tinhte_xentag_tag_can_not_contain_comma" version_id="1" version_string="0.9"><![CDATA[Tag can not contain comma]]></phrase>
+    <phrase title="tinhte_xentag_tag_can_not_longer_than_x" version_id="6" version_string="0.9.5"><![CDATA[Tag can not be longer than {maxLength} characters.]]></phrase>
+    <phrase title="tinhte_xentag_tag_cloud" version_id="3" version_string="0.9.2"><![CDATA[Tag Cloud]]></phrase>
+    <phrase title="tinhte_xentag_tag_confirm_deletion" version_id="1" version_string="0.9"><![CDATA[Confirm Deletion of Tag]]></phrase>
+    <phrase title="tinhte_xentag_tag_delete" version_id="1" version_string="0.9"><![CDATA[Delete Tag]]></phrase>
+    <phrase title="tinhte_xentag_tag_description" version_id="68" version_string="1.3.4.1"><![CDATA[Description]]></phrase>
+    <phrase title="tinhte_xentag_tag_description_explain" version_id="68" version_string="1.3.4.1"><![CDATA[User with edit permission may change the description from the front-end.]]></phrase>
+    <phrase title="tinhte_xentag_tag_edit" version_id="1" version_string="0.9"><![CDATA[Edit Tag]]></phrase>
+    <phrase title="tinhte_xentag_tag_not_found" version_id="1" version_string="0.9"><![CDATA[The requested Tag could not be found]]></phrase>
+    <phrase title="tinhte_xentag_tag_no_results" version_id="1" version_string="0.9"><![CDATA[No clues of Tag at this moment...]]></phrase>
+    <phrase title="tinhte_xentag_tag_please_confirm" version_id="68" version_string="1.3.4.1"><![CDATA[Please confirm that you want to delete the following tag]]></phrase>
+    <phrase title="tinhte_xentag_tag_save" version_id="1" version_string="0.9"><![CDATA[Save Tag]]></phrase>
+    <phrase title="tinhte_xentag_tag_text" version_id="68" version_string="1.3.4.1"><![CDATA[Tag]]></phrase>
+    <phrase title="tinhte_xentag_tag_text_explain" version_id="68" version_string="1.3.4.1"><![CDATA[The tag text that will be used and referenced throughout the system. It's not recommended to change this because it may break URLs or render strange search behaviors among other things.]]></phrase>
+    <phrase title="tinhte_xentag_these_are_x_most_used_tags" version_id="1" version_string="0.9"><![CDATA[These are the {count} most used tags.]]></phrase>
+    <phrase title="tinhte_xentag_thread_requires_tag" version_id="93" version_string="1.8.3"><![CDATA[The thread must be tagged with at least one tag.]]></phrase>
+    <phrase title="tinhte_xentag_too_many_tags_x_of_y" version_id="93" version_string="1.8.3"><![CDATA[Too many tags have been used: {count} of {maximum} tags allowed.]]></phrase>
+    <phrase title="tinhte_xentag_viewing_tag" version_id="55" version_string="1.2.16"><![CDATA[Viewing tag]]></phrase>
+    <phrase title="tinhte_xentag_viewing_tags" version_id="55" version_string="1.2.16"><![CDATA[Viewing tags]]></phrase>
+    <phrase title="tinhte_xentag_you_can_not_create_new_tag" version_id="5" version_string="0.9.4"><![CDATA[Sorry, you do not have the permission to create new tag. Please use existing tags only.]]></phrase>
+  </phrases>
+  <route_prefixes>
+    <route_type type="admin">
+      <prefix original_prefix="xentag-tags" class="Tinhte_XenTag_Route_PrefixAdmin_Tag" build_link="data_only"/>
+    </route_type>
+    <route_type type="public">
+      <prefix original_prefix="tags" class="Tinhte_XenTag_Route_Prefix_Tags" build_link="data_only"/>
+    </route_type>
+  </route_prefixes>
+  <style_properties>
+    <property property_name="tinhte_xentag_showIconInTagLink" property_type="scalar" definition="1" group_name="Tinhte_XenTag" title="Show Icon in Tag Link" description="Enable this option to show a small icon for the tag link. The icon must be placed in the image path defined by the style. To be exact: @imagePath/Tinhte/XenTag/tag.png." css_components="" scalar_type="boolean" scalar_parameters="" display_order="200" sub_group="bbcode"><![CDATA[0]]></property>
+    <group group_name="Tinhte_XenTag" display_order="9999">
+      <title>[Tinhte] XenTag</title>
+      <description>Styling properties for contents tagging.</description>
+    </group>
+  </style_properties>
+  <templates>
+    <template title="tinhte_xentag.css" version_id="86" version_string="1.6.5"><![CDATA[.Tinhte_XenTag_TagsEditor {
+	overflow: auto;
+}
+	.ctrlUnit dd .Tinhte_XenTag_TagsEditor li,
+	.Tinhte_XenTag_TagsEditor li {
+		float: left;
+		display: block;
+		border-radius: 5px;
+		margin: 2px 5px 2px 0;
+	}
+	
+	.Tinhte_XenTag_TagsEditor .Tinhte_XenTag_Tag {
+		{xen:property secondaryContent.background}
+		
+		color: {xen:property textCtrlText};
+		padding: 3px;
+		border: 1px solid {xen:property primaryLight};
+	}
+		.Tinhte_XenTag_TagsEditor .Tinhte_XenTag_Tag:hover {
+			background-color: {xen:property primaryLighterStill};
+		}
+		.Tinhte_XenTag_TagsEditor .Tinhte_XenTag_Tag a.delete {
+			color: #777777;
+			cursor: pointer;
+			font-size: 12px;
+			font-weight: bold;
+			outline: medium none;
+			text-decoration: none;
+			padding: 2px 0 2px 3px;
+		}
+		
+	.Tinhte_XenTag_TagsEditor .Tinhte_XenTag_TagNew {
+		padding: 2px 4px 1px 0;
+	}
+		.Tinhte_XenTag_TagsEditor .Tinhte_XenTag_TagNew .textCtrl.Tinhte_XenTag_TagNewInput {
+			margin: 0 !important;
+			padding: 3px !important;
+			border: none !important;
+			width: inherit !important;
+			background: transparent !important;
+		}
+		.Tinhte_XenTag_TagsEditor .Tinhte_XenTag_TagNew .textCtrl.Tinhte_XenTag_TagNewInput:focus {
+			border: none !important;
+			background: transparent !important;
+		}
+
+.Tinhte_XenTag_TagsInlineEditorForm {
+	/* this class is added to the form by javascript */
+}
+	.xenForm.Tinhte_XenTag_TagsInlineEditorForm {
+		margin: 0;
+		width: auto;
+	}
+	.Tinhte_XenTag_TagsInlineEditorForm .Tinhte_XenTag_TagsEditor.textCtrl {
+		border: 0;
+		background: transparent;
+	}
+
+/* Tag cloud */
+
+.Tinhte_XenTag_TagCloud {
+	
+}
+	.Tinhte_XenTag_TagCloud .Tinhte_XenTag_TagCloudTag {
+		margin: 6px 3px;
+		display: inline;
+	}
+		.Tinhte_XenTag_TagCloud .Tinhte_XenTag_TagCloudTag a {
+			text-decoration: none;
+			white-space: nowrap;
+		}
+	.Tinhte_XenTag_TagsEditor.Tinhte_XenTag_TagCloud .Tinhte_XenTag_TagCloudTag {
+		float: none;
+	}
+	
+	.Tinhte_XenTag_TagCloud .Tinhte_XenTag_TagCloud_Level1 { font-size: 100% }
+	.Tinhte_XenTag_TagCloud .Tinhte_XenTag_TagCloud_Level2 { font-size: 120% }
+	.Tinhte_XenTag_TagCloud .Tinhte_XenTag_TagCloud_Level3 { font-size: 150% }
+	.Tinhte_XenTag_TagCloud .Tinhte_XenTag_TagCloud_Level4 { font-size: 175% }
+	.Tinhte_XenTag_TagCloud .Tinhte_XenTag_TagCloud_Level5 { font-size: 200% }
+	
+.tinhte_xentag_tag_list .xenForm fieldset {
+	/* disable the separating line for fieldset */
+	border: 0;
+}
+
+.Tinhte_XenTag_Copyright {
+	float: right;
+}
+
+<xen:if is="{xen:property tinhte_xentag_showIconInTagLink}">
+a.Tinhte_XenTag_TagLink:link,
+a.Tinhte_XenTag_TagLink:visited,
+a.Tinhte_XenTag_TagLink:hover,
+a.Tinhte_XenTag_TagLink:focus {
+	background: url('{xen:property imagePath}/Tinhte/XenTag/tag.png') bottom right no-repeat;
+	padding-right: 12px !important;
+}
+</xen:if>
+
+.Tinhte_XenTag_TagResult {
+}
+	.Tinhte_XenTag_TagResult_ContentCount {
+		float: right;
+	}
+
+]]></template>
+    <template title="tinhte_xentag_bb_code_tag_tag" version_id="77" version_string="1.6"><![CDATA[<xen:require css="tinhte_xentag.css" /><a href="{xen:link tags, $tag}" class="Tinhte_XenTag_TagLink"{xen:if '{xen:helper Tinhte_XenTag_getOption, linkTargetBlank}', ' target="_blank"'}>{$displayText}</a>]]></template>
+    <template title="tinhte_xentag_copyright" version_id="0" version_string=""><![CDATA[<xen:comment>Please do not remove this copyright notice. Thank you.</xen:comment>
+
+<xen:require css="tinhte_xentag.css" />
+
+<div class="Tinhte_XenTag_Copyright">
+	XenTag by <a href="http://www.tinhte.vn" target="_blank">Tinhte.vn</a>
+</div>]]></template>
+    <template title="tinhte_xentag_forum_view" version_id="69" version_string="1.4"><![CDATA[<xen:if hascontent="true">
+	<div class="sectionMain">
+		{xen:phrase tinhte_xentag_tags}:
+		<xen:contentcheck>{xen:helper Tinhte_XenTag_getImplodedTagsFromForum, $forum, 1}</xen:contentcheck>
+	</div>
+</xen:if>]]></template>
+    <template title="tinhte_xentag_hook_message_below" version_id="89" version_string="1.7.2"><![CDATA[<xen:if is="{xen:helper Tinhte_XenTag_getOption, 'displayPosition'} == 'post_below'">
+	<xen:if is="{$post.post_id} == {$thread.first_post_id}">
+		<xen:comment>The usage of $post is is a bug of XenForo (`message` template) I think.</xen:comment>
+
+		<xen:if hascontent="true">
+			<div style="clear: both; height: 0px;">&nbsp;</div>
+			<xen:contentcheck>
+				<xen:include template="tinhte_xentag_tags_thread_view" />
+			</xen:contentcheck>
+		</xen:if>
+	</xen:if>
+</xen:if>]]></template>
+    <template title="tinhte_xentag_hook_message_content" version_id="3" version_string="0.9.2"><![CDATA[<xen:if is="{xen:helper Tinhte_XenTag_getOption, 'displayPosition'} == 'post_message_below'">
+	<xen:include template="tinhte_xentag_tags_in_post">
+		<xen:map from="$message" to="$post" />
+	</xen:include>
+</xen:if>]]></template>
+    <template title="tinhte_xentag_hook_message_notices" version_id="1" version_string="0.9"><![CDATA[<xen:if is="{xen:helper Tinhte_XenTag_getOption, 'displayPosition'} == 'post_message_above'">
+	<xen:include template="tinhte_xentag_tags_in_post">
+		<xen:map from="$message" to="$post" />
+	</xen:include>
+</xen:if>]]></template>
+    <template title="tinhte_xentag_hook_pagenode_container_article" version_id="60" version_string="1.2.21"><![CDATA[<xen:if hascontent="true">
+	<div class="sectionMain">
+		{xen:phrase tinhte_xentag_tags}:
+		<xen:contentcheck>{xen:helper Tinhte_XenTag_getImplodedTagsFromPage, $page, 1}</xen:contentcheck>
+	</div>
+</xen:if>]]></template>
+    <template title="tinhte_xentag_hook_post_private_controls" version_id="1" version_string="0.9"><![CDATA[<xen:if is="{xen:helper Tinhte_XenTag_getOption, 'displayPosition'} == 'post_date_after'">
+	<xen:if hascontent="true">
+		<span class="item">
+			<xen:contentcheck>
+				<xen:include template="tinhte_xentag_tags_in_post" />
+			</xen:contentcheck>
+		</span>
+		<!-- [Tinhte] XenTag / Revert Mark -->
+	</xen:if>
+</xen:if>]]></template>
+    <template title="tinhte_xentag_hook_post_public_controls" version_id="1" version_string="0.9"><![CDATA[<xen:if is="{xen:helper Tinhte_XenTag_getOption, 'displayPosition'} == 'post_permalink_after'">
+	<xen:if hascontent="true">
+		<span class="item">
+			<xen:contentcheck>
+				<xen:include template="tinhte_xentag_tags_in_post" />
+			</xen:contentcheck>
+		</span>
+		<!-- [Tinhte] XenTag / Revert Mark -->
+	</xen:if>
+</xen:if>]]></template>
+    <template title="tinhte_xentag_hook_resource_view_sidebar_resource_" version_id="80" version_string="1.6.3"><![CDATA[<xen:if is="{xen:helper Tinhte_XenTag_getOption, 'displayPositionResource'} == 'sidebar_info'">
+	<xen:if hascontent="true">
+		<dl class="resourceCategory">
+			<dt>{xen:phrase tinhte_xentag_tags}:</dt>
+			<dd>
+				<xen:contentcheck>
+					{xen:helper Tinhte_XenTag_getImplodedTagsFromResource, $resource, 1}
+				</xen:contentcheck>
+			</dd>
+		</dl>
+		<!-- [Tinhte] XenTag / Mark --><dl class="resourceCategory"><!-- [Tinhte] XenTag / Mark -->
+	</xen:if>
+</xen:if>]]></template>
+    <template title="tinhte_xentag_hook_thread_view_form_before" version_id="1" version_string="0.9"><![CDATA[<xen:if is="{xen:helper Tinhte_XenTag_getOption, 'displayPosition'} == 'thread_messages_above'">
+	<xen:include template="tinhte_xentag_tags_thread_view" />
+</xen:if>]]></template>
+    <template title="tinhte_xentag_hook_thread_view_pagenav_before" version_id="1" version_string="0.9"><![CDATA[<xen:if is="{xen:helper Tinhte_XenTag_getOption, 'displayPosition'} == 'thread_pagenav_above'">
+	<xen:include template="tinhte_xentag_tags_thread_view" />
+</xen:if>]]></template>
+    <template title="tinhte_xentag_hook_thread_view_qr_after" version_id="1" version_string="0.9"><![CDATA[<xen:if is="{xen:helper Tinhte_XenTag_getOption, 'displayPosition'} == 'thread_qr_below'">
+	<xen:include template="tinhte_xentag_tags_thread_view" />
+</xen:if>]]></template>
+    <template title="tinhte_xentag_hook_thread_view_qr_before" version_id="1" version_string="0.9"><![CDATA[<xen:if is="{xen:helper Tinhte_XenTag_getOption, 'displayPosition'} == 'thread_qr_above'">
+	<xen:include template="tinhte_xentag_tags_thread_view" />
+</xen:if>]]></template>
+    <template title="tinhte_xentag_post_edit" version_id="3" version_string="0.9.2"><![CDATA[<xen:if is="{$post.post_id} == {$thread.first_post_id} AND {$Tinhte_XenTag_canEdit}">
+	<fieldset><xen:include template="tinhte_xentag_thread_edit_fields" /></fieldset>
+
+	<!-- [Tinhte] XenTag / Mark --><dl class="ctrlUnit submitUnit"><!-- [Tinhte] XenTag / Mark -->
+</xen:if>]]></template>
+    <template title="tinhte_xentag_resource_add" version_id="75" version_string="1.6-dev"><![CDATA[<xen:if is="{$Tinhte_XenTag_canTag}">
+	<!-- [Tinhte] XenTag / Mark --></fieldset><!-- [Tinhte] XenTag / Mark -->
+
+	<xen:require js="js/Tinhte/XenTag/frontend.js" />
+	<xen:require css="tinhte_xentag.css" />
+
+	<fieldset>		
+		<dl class="ctrlUnit">
+			<dt><label for="ctrl_tinhte_xentag_tags">{xen:phrase tinhte_xentag_tags}:</label></dt>
+			<dd>
+				<ul class="Tinhte_XenTag_TagsEditor" data-varname="tinhte_xentag_tags[]">
+					<li>
+						<input type="text"
+							name="tinhte_xentag_tags_text"
+							value="{xen:helper Tinhte_XenTag_getImplodedTagsFromResource, $resource}"
+							id="ctrl_tinhte_xentag_tags"
+							class="textCtrl AutoComplete AcSingle Tinhte_XenTag_TagNewInput"
+							data-acUrl="{xen:link 'tags/find'}"
+							/>
+					</li>
+				</ul>
+				<p class="explain">{xen:phrase tinhte_xentag_tags_instruction}</p>
+				<input type="hidden" name="tinhte_xentag_included" value="1" />
+			</dd>
+		</dl>
+	</fieldset>
+</xen:if>]]></template>
+    <template title="tinhte_xentag_resource_description" version_id="77" version_string="1.6"><![CDATA[<xen:if is="{xen:helper Tinhte_XenTag_getOption, 'displayPositionResource'} == 'bottom'">
+	<xen:if hascontent="true">
+		<div class="sectionMain">
+			{xen:phrase tinhte_xentag_tags}:
+			<xen:contentcheck>{xen:helper Tinhte_XenTag_getImplodedTagsFromResource, $resource, 1}</xen:contentcheck>
+		</div>
+	</xen:if>
+</xen:if>]]></template>
+    <template title="tinhte_xentag_search_bar_tag_only" version_id="89" version_string="1.7.2"><![CDATA[<label><input type="checkbox" name="tinhte_xentag_tags_text_no_include" value="{$tag.tag_text}"
+	id="search_bar_tag" class="Disabler AutoChecker" checked="checked"
+	/> {xen:phrase tinhte_xentag_search_threads_tagged_with_x_only, 'tag_text={$tag.tag_text}'}</label>
+	<ul id="search_bar_tag_Disabler">
+		<li><label><input type="checkbox" name="type[post][group_discussion]" value="1"
+			id="search_bar_group_discussion" class="AutoChecker"
+			/> {xen:phrase display_results_as_threads}</label></li>
+	</ul>
+<input type="hidden" name="type" value="post" />]]></template>
+    <template title="tinhte_xentag_search_form_post" version_id="1" version_string="0.9"><![CDATA[<xen:include template="tinhte_xentag_search_form" />]]></template>
+    <template title="tinhte_xentag_search_result_forum" version_id="75" version_string="1.6-dev"><![CDATA[<li id="tinhte_xentag_forum-{$forum.node_id}" class="searchResult tinhte_xentag_forum primaryContent">
+
+	<div class="listBlock main">
+		<div class="titleText">
+			<span class="contentType">{xen:phrase forum}</span>
+			<h3 class="title"><a href="{xen:link forums, $forum}">{xen:helper highlight, $forum.title, $search.search_query, 'highlight'}</a></h3>
+		</div>
+
+		<blockquote class="snippet">
+			<a href="{xen:link forums, $forum}">{xen:helper snippet, $forum.description, 150, {xen:array 'term={$search.search_query}', 'emClass=highlight'}}</a>
+		</blockquote>
+
+	</div>
+
+</li>]]></template>
+    <template title="tinhte_xentag_search_result_page" version_id="75" version_string="1.6-dev"><![CDATA[<li id="tinhte_xentag_page-{$page.node_id}" class="searchResult tinhte_xentag_page primaryContent">
+
+	<div class="listBlock main">
+		<div class="titleText">
+			<span class="contentType">{xen:phrase page}</span>
+			<h3 class="title"><a href="{xen:link pages, $page}">{xen:helper highlight, $page.title, $search.search_query, 'highlight'}</a></h3>
+		</div>
+
+		<blockquote class="snippet">
+			<a href="{xen:link pages, $page}">{xen:helper snippet, $page.description, 150, {xen:array 'term={$search.search_query}', 'emClass=highlight'}}</a>
+		</blockquote>
+
+	</div>
+
+</li>]]></template>
+    <template title="tinhte_xentag_search_result_resource" version_id="77" version_string="1.6"><![CDATA[<li id="tinhte_xentag_resource-{$resource.resource_id}" class="searchResult tinhte_xentag_resource primaryContent">
+	
+	<div class="listBlock posterAvatar"><xen:avatar user="$resource" size="s" img="true" /></div>
+
+	<div class="listBlock main">
+		<div class="titleText">
+			<span class="contentType">{xen:phrase resource}</span>
+			<h3 class="title"><a href="{xen:link resources, $resource}">{xen:helper highlight, $resource.title, $search.search_query, 'highlight'}</a></h3>
+		</div>
+
+		<blockquote class="snippet">
+			<a href="{xen:link resources, $resource}">{xen:helper snippet, $resource.tag_line, 150, {xen:array 'term={$search.search_query}', 'emClass=highlight'}}</a>
+		</blockquote>
+
+		<div class="meta">
+			{xen:phrase post_by}: <xen:username user="$resource" />,
+			<xen:datetime time="{$resource.resource_date}" />
+			{xen:phrase in_category}: <a href="{xen:link resources/categories, $resource}">{$resource.category_title}</a>
+		</div>
+	</div>
+
+</li>]]></template>
+    <template title="tinhte_xentag_sidebar_cloud" version_id="40" version_string="1.2"><![CDATA[<xen:if hascontent="true">
+	<xen:require css="tinhte_xentag.css" />
+
+	<div class="section Tinhte_XenTag_SidebarCloud Tinhte_XenTag_TagCloud">
+		<div class="secondaryContent">
+			<h3><a href="{xen:link tags}">{xen:phrase tinhte_xentag_tag_cloud}</a></h3>
+			<ul>
+				<xen:contentcheck>
+					<xen:hook name="tinhte_xentag_tag_cloud_item" params="{xen:array 'max={xen:helper Tinhte_XenTag_getOption, cloudMax}'}">
+						<li class="Tinhte_XenTag_TagCloudTag Tinhte_XenTag_TagCloud_Level{TAG_LEVEL}"><a href="{TAG_LINK}">{TAG_TEXT}</a></li>
+					</xen:hook>
+				</xen:contentcheck>
+			</ul>
+		</div>
+	</div>
+</xen:if>]]></template>
+    <template title="tinhte_xentag_sidebar_search_results" version_id="87" version_string="1.7"><![CDATA[<xen:require css="tinhte_xentag.css" />
+
+<xen:if is="{$search.tinhte_xentag_tags}">
+	<div class="section Tinhte_XenTag_TagResults avatarList">
+		<div class="secondaryContent">
+			<h3>{xen:phrase tinhte_xentag_matched_tags}</h3>
+			<ul>
+				<xen:foreach loop="$search.tinhte_xentag_tags" value="$tag">
+						<li class="Tinhte_XenTag_TagResult">
+							<span class="muted Tinhte_XenTag_TagResult_ContentCount userTitle">{xen:number $tag.content_count}</span>
+							<a href="{xen:link tags, $tag}" class="username NoOverlay">{$tag.tag_text}</a>
+							<div class="userTitle">{$tag.tag_description}</div>
+						</li>
+				</xen:foreach>
+			</ul>
+		</div>
+	</div>
+</xen:if>]]></template>
+    <template title="tinhte_xentag_tags_in_post" version_id="39" version_string="1.1.5"><![CDATA[<xen:if is="{$post.post_id} == {$thread.first_post_id}">
+	<xen:if is="{$Tinhte_XenTag_canEdit}">
+			<xen:require js="js/Tinhte/XenTag/frontend.js" />
+		
+			<div class="Tinhte_XenTag_TagsInlineEditor" data-template="tags_in_post">
+				<xen:if hascontent="true">
+                    <xen:contentcheck>{xen:helper Tinhte_XenTag_getImplodedTagsFromThread, $thread, 1}</xen:contentcheck>
+                <xen:else />
+                    {xen:phrase tinhte_xentag_no_tags}
+                </xen:if>
+				(<a class="Tinhte_XenTag_Trigger" href="{xen:link 'threads/edit-tags', $thread}">{xen:phrase tinhte_xentag_edit_tags}</a>)
+			</div>
+	<xen:else />
+		{xen:helper Tinhte_XenTag_getImplodedTagsFromThread, $thread, 1}
+	</xen:if>
+</xen:if>]]></template>
+    <template title="tinhte_xentag_tags_thread_view" version_id="88" version_string="1.7.1"><![CDATA[<xen:if is="{$Tinhte_XenTag_canEdit}">
+    <xen:require js="js/Tinhte/XenTag/frontend.js" />
+	<xen:require css="tinhte_xentag.css" />
+
+    <div class="sectionMain">
+        <div class="Tinhte_XenTag_TagsInlineEditor" data-template="tags_thread_view">
+            {xen:phrase tinhte_xentag_tags}:
+            <xen:if hascontent="true">
+			    <xen:contentcheck>{xen:helper Tinhte_XenTag_getImplodedTagsFromThread, $thread, 1}</xen:contentcheck>
+            <xen:else />
+                {xen:phrase tinhte_xentag_no_tags}
+            </xen:if>
+			(<a class="Tinhte_XenTag_Trigger" href="{xen:link 'threads/edit-tags', $thread}">{xen:phrase tinhte_xentag_edit_tags}</a>)
+		</div>
+    </div>
+<xen:else />
+    <xen:if hascontent="true">
+        <div class="sectionMain">
+    		{xen:phrase tinhte_xentag_tags}:
+    		<xen:contentcheck>{xen:helper Tinhte_XenTag_getImplodedTagsFromThread, $thread, 1}</xen:contentcheck>
+    	</div>
+    </xen:if>
+</xen:if>]]></template>
+    <template title="tinhte_xentag_tag_edit" version_id="89" version_string="1.7.2"><![CDATA[<xen:title>{xen:phrase tinhte_xentag_tag_edit}: {$tag.tag_text}</xen:title>
+
+<xen:navigation>
+	<xen:breadcrumb href="{xen:link tags}">{xen:phrase tinhte_xentag_tags}</xen:breadcrumb>
+	<xen:breadcrumb href="{xen:link tags, $tag}">{$tag.tag_text}</xen:breadcrumb>
+</xen:navigation>
+
+<form method="post" class="xenForm formOverlay" action="{xen:link 'tags/edit', $tag}">
+
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_tag_description">{xen:phrase tinhte_xentag_tag_description}:</label></dt>
+		<dd>
+			<textarea name="tag_description" id="tag_description" rows="5" class="textCtrl Elastic">{$tag.tag_description}</textarea>
+		</dd>
+	</dl>
+
+	<dl class="ctrlUnit submitUnit">
+		<dt></dt>
+		<dd><input type="submit" name="save" value="{xen:phrase save}" accesskey="s" class="button primary" /></dd>
+	</dl>
+
+	<input type="hidden" name="tag_id" value="{$tag.tag_id}" />
+	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+	<input type="hidden" name="_xfConfirm" value="1" />
+</form>]]></template>
+    <template title="tinhte_xentag_tag_list" version_id="27" version_string="1.0.1"><![CDATA[<xen:require css="tinhte_xentag.css" />
+<xen:require js="js/Tinhte/XenTag/jquery.tinysort.js" />
+<xen:require js="js/Tinhte/XenTag/frontend.js" />
+
+<xen:title>{xen:phrase tinhte_xentag_tags}</xen:title>
+<xen:description>
+	{xen:phrase tinhte_xentag_these_are_x_most_used_tags, 'count={xen:count $tags}'}
+</xen:description>
+
+<xen:container var="$head.canonical">
+	<link rel="canonical" href="{xen:link 'canonical:tags'}" /></xen:container>
+
+<xen:container var="$canSearch">0</xen:container>
+
+<fieldset>
+	<ul class="Tinhte_XenTag_TagCloud sectionMain" data-toggler="{xen:phrase tinhte_xentag_sort}">
+		<xen:foreach loop="$tags" value="$tag">
+			<li class="Tinhte_XenTag_TagCloudTag Tinhte_XenTag_TagCloud_Level{$tag.cloudLevel}">
+				<a href="{xen:link tags, $tag}">{$tag.tag_text}</a>
+			</li>
+		</xen:foreach>
+	</ul>
+</fieldset>
+
+<form action="{xen:link 'tags/search'}" method="post" class="xenForm">
+	<h3 class="textHeading">{xen:phrase tinhte_xentag_search_by_tag}</h3>
+
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_tinhte_xentag_tags">{xen:phrase tinhte_xentag_tags}:</label></dt>
+		<dd>
+			<input type="text"
+				name="tinhte_xentag_tags_text"
+				value=""
+				id="ctrl_tinhte_xentag_tags"
+				class="textCtrl AutoComplete AcSingle"
+				data-acUrl="{xen:link 'tags/find'}"
+				data-autoSubmit="yes"
+				/>
+			<input type="hidden" name="tinhte_xentag_included" value="1" />
+		</dd>
+	</dl>
+
+	<dl class="ctrlUnit submitUnit">
+		<dt></dt>
+		<dd><input type="submit" value="{xen:phrase search}" class="button primary" /></dd>
+	</dl>
+
+	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+</form>
+
+<xen:include template="tinhte_xentag_copyright" />]]></template>
+    <template title="tinhte_xentag_tag_view" version_id="69" version_string="1.4"><![CDATA[<xen:title>{$tag.tag_text}{xen:helper pagenumber, $page}</xen:title>
+<xen:h1>{$tag.tag_text}</xen:h1>
+<xen:description>
+	{$tag.tag_description}
+	{xen:phrase tinhte_xentag_all_contents_tagged_x, 'board_title={$xenOptions.boardTitle}', 'tag_text={$tag.tag_text}'}
+	{xen:if '{$page} > 1', '{xen:phrase tinhte_xentag_page_x, 'page={$page}'}'}
+</xen:description>
+
+<xen:navigation>
+	<xen:breadcrumb href="{xen:link tags}">{xen:phrase tinhte_xentag_tags}</xen:breadcrumb>
+</xen:navigation>
+
+<xen:container var="$head.canonical">
+	<link rel="canonical" href="{xen:link 'canonical:tags', $tag, 'page={$page}'}" /></xen:container>
+
+<xen:container var="$head.rss">
+	<link rel="alternate" type="application/rss+xml" title="{xen:phrase rss_feed_for_x, 'title={$tag.tag_text}'}" href="{xen:link 'tags.rss', $tag}" /></xen:container>
+
+<xen:container var="$searchBar.tinhte_xentag"><xen:include template="tinhte_xentag_search_bar_tag_only" /></xen:container>
+
+<xen:if is="{$canEdit}">
+	<xen:set var="$editButton"><a href="{xen:link 'tags/edit', $tag}" class="callToAction OverlayTrigger"><span>{xen:phrase tinhte_xentag_tag_edit}</span></a></xen:set>
+	<xen:topctrl>{xen:raw $editButton}</xen:topctrl>
+</xen:if>
+
+<xen:require css="search_results.css" />
+	
+<div class="pageNavLinkGroup">
+	<xen:pagenav link="tags" linkdata="{$tag}" page="{$page}" perpage="{$perPage}" total="{$totalThreads}" linkparams="{$linkParams}" />
+</div>
+
+<div class="section sectionMain searchResults">
+	<form action="" method="post">
+
+		<ol class="searchResultsList">
+			<xen:foreach loop="$results" value="$result" i="$i">
+				{xen:raw $result}
+			</xen:foreach>
+		</ol>
+		
+		<div class="sectionFooter searchResultSummary">
+			<span class="resultCount">{xen:phrase showing_results_x_to_y_of_z, 'start={xen:number $resultStartOffset}', 'end={xen:number $resultEndOffset}', 'total={xen:number $totalResults}'}</span>
+		</div>
+
+	</form>
+</div>
+
+
+<div class="pageNavLinkGroup">
+	<div class="linkGroup"{xen:if '!{$ignoredNames}', ' style="display: none"'}><a href="javascript:" class="muted jsOnly DisplayIgnoredContent Tooltip" title="{xen:phrase show_hidden_content_by_x, "names={xen:helper implode, $ignoredNames, ', '}"}">{xen:phrase show_ignored_content}</a></div>
+
+	<xen:pagenav link="tags" linkdata="{$tag}" page="{$page}" perpage="{$perPage}" total="{$totalResults}" linkparams="{$linkParams}" />
+</div>
+
+<xen:include template="share_page">
+	<xen:set var="$url">{xen:link 'canonical:tags', $tag}</xen:set>
+</xen:include>
+
+<xen:include template="tinhte_xentag_copyright" />]]></template>
+    <template title="tinhte_xentag_thread_create" version_id="3" version_string="0.9.2"><![CDATA[<xen:if is="{$Tinhte_XenTag_canTag}">
+	<!-- [Tinhte] XenTag / Mark --><!-- slot: after_editor --><!-- [Tinhte] XenTag / Mark -->
+
+	<fieldset><xen:include template="tinhte_xentag_thread_edit_fields" /></fieldset>
+</xen:if>]]></template>
+    <template title="tinhte_xentag_thread_edit" version_id="3" version_string="0.9.2"><![CDATA[<xen:if is="{$Tinhte_XenTag_canEdit}">
+	<xen:include template="tinhte_xentag_thread_edit_fields" />
+
+	<!-- [Tinhte] XenTag / Mark --><dl class="ctrlUnit submitUnit"><!-- [Tinhte] XenTag / Mark -->
+</xen:if>]]></template>
+    <template title="tinhte_xentag_thread_edit_fields" version_id="35" version_string="1.1.1"><![CDATA[<xen:require js="js/Tinhte/XenTag/frontend.js" />
+<xen:require css="tinhte_xentag.css" />
+
+<dl class="ctrlUnit">
+	<dt><label for="ctrl_tinhte_xentag_tags">{xen:phrase tinhte_xentag_tags}:</label></dt>
+	<dd>
+		<ul class="Tinhte_XenTag_TagsEditor" data-varname="tinhte_xentag_tags[]">
+			<li>
+				<input type="text"
+					name="tinhte_xentag_tags_text"
+					value="{xen:helper Tinhte_XenTag_getImplodedTagsFromThread, $thread}"
+					id="ctrl_tinhte_xentag_tags"
+					class="textCtrl AutoComplete AcSingle Tinhte_XenTag_TagNewInput"
+					data-acUrl="{xen:link 'tags/find'}"
+					/>
+			</li>
+		</ul>
+		<p class="explain">{xen:phrase tinhte_xentag_tags_instruction}</p>
+		<input type="hidden" name="tinhte_xentag_included" value="1" />
+	</dd>
+</dl>]]></template>
+    <template title="tinhte_xentag_thread_edit_tags" version_id="87" version_string="1.7"><![CDATA[<xen:require js="js/Tinhte/XenTag/frontend.js" />
+<xen:require css="tinhte_xentag.css" />
+
+<xen:title>{xen:phrase tinhte_xentag_edit_tags}: {xen:helper threadPrefix, $thread, escaped}{$thread.title}</xen:title>
+<xen:h1>{xen:phrase tinhte_xentag_edit_tags}: {xen:helper threadPrefix, $thread}{$thread.title}</xen:h1>
+
+<xen:navigation>
+	<xen:breadcrumb source="$nodeBreadCrumbs" />
+	<xen:breadcrumb href="{xen:link full:threads, $thread}">{xen:helper threadPrefix, $thread}{$thread.title}</xen:breadcrumb>
+</xen:navigation>
+
+<xen:container var="$bodyClasses">{xen:helper nodeClasses, $nodeBreadCrumbs, $forum}</xen:container>
+<xen:container var="$searchBar.thread"><xen:include template="search_bar_thread_only" /></xen:container>
+<xen:container var="$searchBar.forum"><xen:include template="search_bar_forum_only" /></xen:container>
+
+<form action="{xen:link 'threads/edit-tags', $thread}" method="post" class="xenForm formOverlay">
+
+	<ul class="Tinhte_XenTag_TagsEditor" data-varname="tinhte_xentag_tags[]">
+		<li>
+			<input type="text"
+				name="tinhte_xentag_tags_text"
+				value="{xen:helper Tinhte_XenTag_getImplodedTagsFromThread, $thread}"
+				id="ctrl_tinhte_xentag_tags"
+				class="textCtrl AutoComplete AcSingle Tinhte_XenTag_TagNewInput"
+				data-acUrl="{xen:link 'tags/find'}"
+				/>
+		</li>
+	</ul>
+	<p class="muted">{xen:phrase tinhte_xentag_tags_instruction}</p>
+	<input type="hidden" name="tinhte_xentag_included" value="1" />
+	
+	<div>
+		<input type="submit" value="{xen:phrase save_changes}" accesskey="s" class="button primary" />
+		<input type="reset" value="{xen:phrase cancel}" class="button cancel" />
+	</div>
+
+	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+	<input type="hidden" name="_xfConfirm" value="1" />
+</form>]]></template>
+    <template title="tinhte_xentag_thread_edit_tags_save" version_id="5" version_string="0.9.4"><![CDATA[<div>
+	<xen:set var="$post.post_id">{$thread.first_post_id}</xen:set>
+
+    <xen:if is="{$Tinhte_XenTag_callerTemplate} == 'tags_thread_view'">
+        <xen:include template="tinhte_xentag_tags_thread_view">
+    		<xen:set var="$Tinhte_XenTag_canEdit">1</xen:set>
+    	</xen:include>
+    <xen:else />
+    	<xen:include template="tinhte_xentag_tags_in_post">
+    		<xen:set var="$Tinhte_XenTag_canEdit">1</xen:set>
+    	</xen:include>
+    </xen:if>
+</div>]]></template>
+    <template title="tinhte_xentag_thread_list_item_edit" version_id="3" version_string="0.9.2"><![CDATA[<xen:comment>
+	<xen:require js="js/Tinhte/XenTag/frontend.js" />
+	<xen:require css="tinhte_xentag.css" />
+	Intentionally not use our fancy tag editor here
+</xen:comment>
+
+<xen:if is="{$Tinhte_XenTag_canEdit}">
+	<div class="Tinhte_XenTag_TagEdit editBlock">
+		<label for="ctrl_tinhte_xentag_tags_{$thread.thread_id}">{xen:phrase tinhte_xentag_tags}:
+			<input type="text"
+				name="tinhte_xentag_tags_text"
+				value="{xen:helper Tinhte_XenTag_getImplodedTagsFromThread, $thread}"
+				id="ctrl_tinhte_xentag_tags_{$thread.thread_id}"
+				class="textCtrl AutoComplete"
+				data-acUrl="{xen:link 'tags/find'}"
+				/>
+			<input type="hidden" name="tinhte_xentag_included" value="1" />
+		</label>
+	</div>
+
+	<!-- [Tinhte] XenTag / Mark --><div class="buttons editBlock"><!-- [Tinhte] XenTag / Mark -->
+</xen:if>]]></template>
+    <template title="tinhte_xentag_thread_list_item_preview" version_id="1" version_string="0.9"><![CDATA[<xen:if hascontent="true">
+	<div class="text muted">
+		{xen:phrase tinhte_xentag_tags}:
+		<xen:contentcheck>{xen:helper Tinhte_XenTag_getImplodedTagsFromThread, $thread}</xen:contentcheck>
+	</div>
+	<!-- [Tinhte] XenTag / Mark --></div><!-- [Tinhte] XenTag / Mark -->
+	<!-- [Tinhte] XenTag / Revert Mark --><xen:comment>We want to look for the last occurence of </div> for best effect!</xen:comment>
+</xen:if>]]></template>
+    <template title="tinhte_xentag_widget_cloud" version_id="6" version_string="0.9.5"><![CDATA[<xen:if hascontent="true">
+    <xen:require css="tinhte_xentag.css" />
+    
+    <div class="Tinhte_XenTag_TagCloud">
+        <xen:contentcheck>
+            <xen:hook name="tinhte_xentag_tag_cloud_item" params="{xen:array 'max={$widget.options.limit}'}">
+            	<li class="Tinhte_XenTag_TagCloudTag Tinhte_XenTag_TagCloud_Level{TAG_LEVEL}"><a href="{TAG_LINK}">{TAG_TEXT}</a></li>
+            </xen:hook>
+        </xen:contentcheck>
+    </div>
+</xen:if>]]></template>
+    <template title="tinhte_xentag_widget_related_threads" version_id="88" version_string="1.7.1"><![CDATA[<xen:if hascontent="true">
+    <div class="avatarList">
+        <ul>
+            <xen:contentcheck>
+                <xen:foreach loop="$threads" value="$thread">
+					<xen:if hascontent="true">
+						<xen:comment>[bd] Widget Framework 2.3.5+</xen:comment>
+						<xen:contentcheck>
+							<xen:include template="wf_widget_threads_thread_sidebar">
+								<xen:set var="$_secondRow">
+									{xen:phrase wf_x_posted, 'user=<a href="{xen:link 'members', {$thread}}">{$thread.username}</a>'} <xen:datetime time="{$thread.post_date}" />
+								</xen:set>
+							</xen:include>
+						</xen:contentcheck>
+					<xen:else />
+						<xen:comment>Older version of [bd] Widget Framework...</xen:comment>
+						<li>
+							<xen:avatar user="$thread" size="s" img="true" />
+							<xen:include template="wf_widget_threads_thread_title" />
+							<div class="userTitle">{xen:phrase wf_x_posted, 'user=<a href="{xen:link 'members', {$thread}}">{$thread.username}</a>'} <xen:datetime time="{$thread.post_date}" /></div>
+						</li>
+					</xen:if>
+            	</xen:foreach>
+            </xen:contentcheck>
+        </ul>
+    </div>
+</xen:if>]]></template>
+    <template title="tinhte_xentag_widget_tagged_threads" version_id="21" version_string="0.10"><![CDATA[<xen:include template="tinhte_xentag_widget_related_threads" />]]></template>
+  </templates>
+  <public_template_modifications/>
+  <bb_code_media_sites/>
+</addon>
